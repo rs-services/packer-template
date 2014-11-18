@@ -1,0 +1,48 @@
+{ 
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": ""
+  },
+  "builders": [{
+		"type": "virtualbox-iso",
+        "virtualbox_version_file": ".vbox_version",
+        "headless": false,
+
+        "guest_os_type": "RedHat_64",
+        "disk_size": 10024,
+
+  "iso_url": "http://mirror.rackspace.com/CentOS/6.5/isos/x86_64/CentOS-6.5-x86_64-minimal.iso",
+  "iso_checksum": "0d9dc37b5dd4befa1c440d2174e88a87",
+  "iso_checksum_type": "md5",
+
+        "boot_command": [
+            "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos-6.5-x86_64/ks.cfg<enter><wait>"
+        ],
+        "boot_wait": "12s",
+
+        "http_directory": "httpd",
+
+        "ssh_username": "vagrant",
+        "ssh_password": "vagrant",
+        "ssh_port": 22,
+        "ssh_wait_timeout": "10000s",
+
+        "vboxmanage": [
+            ["modifyvm", "{{.Name}}", "--memory", "512"],
+            ["modifyvm", "{{.Name}}", "--cpus", "1"]
+        ],
+
+        "shutdown_command": "echo 'packer'|sudo -S /sbin/halt -h -p"
+}],
+    "post-processors": [{
+        "output": "build/centos-6.5-x86_64.box",
+        "type": "vagrant"
+    }],
+ "provisioners": [{
+    "type": "shell",
+    "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+    "scripts": ["scripts/rightlink-centos6-rightlink6-vsphere.sh"]
+  }]
+
+}
+
